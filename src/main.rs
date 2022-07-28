@@ -15,7 +15,7 @@ pub trait Testable {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{info}");
-    loop {}
+    blog_os::hlt_loop();
 }
 
 #[cfg(test)]
@@ -35,10 +35,5 @@ pub extern "C" fn _start() -> ! {
 
     println!("it did not crash!");
 
-    // #[allow(clippy::empty_loop)]
-    loop {
-        use blog_os::print;
-        print!("-");
-        for _ in 0..10000 {}
-    }
+    blog_os::hlt_loop();
 }
