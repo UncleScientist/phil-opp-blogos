@@ -35,6 +35,10 @@ pub extern "C" fn _start() -> ! {
 
     println!("it did not crash!");
 
-    #[allow(clippy::empty_loop)]
-    loop {}
+    // #[allow(clippy::empty_loop)]
+    loop {
+        use blog_os::print;
+        print!("-");
+        for _ in 0..10000 {}
+    }
 }
