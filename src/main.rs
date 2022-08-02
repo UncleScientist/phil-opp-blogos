@@ -4,8 +4,11 @@
 #![test_runner(blog_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate alloc;
+
 use bootloader::{entry_point, BootInfo};
 
+use alloc::boxed::Box;
 use blog_os::println;
 use core::panic::PanicInfo;
 
@@ -40,10 +43,12 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut _frame_allocator =
         unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
+    let x = Box::new(41);
+
     #[cfg(test)]
     test_main();
 
-    println!("it did not crash!");
+    println!("it did not crash {x}!");
 
     blog_os::hlt_loop();
 }
