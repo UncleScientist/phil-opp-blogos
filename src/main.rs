@@ -8,8 +8,8 @@ extern crate alloc;
 
 use bootloader::{entry_point, BootInfo};
 
-use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use blog_os::println;
+use blog_os::task::{simple_executor::SimpleExecutor, Task};
 use core::panic::PanicInfo;
 
 pub trait Testable {
@@ -45,26 +45,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
-    let heap_value = Box::new(41);
-    println!("heap_value at {heap_value:p}");
-
-    let mut vec = Vec::new();
-    for i in 0..500 {
-        vec.push(i);
-    }
-    println!("vec at {:p}", vec.as_slice());
-
-    let reference_counted = Rc::new(vec![1, 2, 3]);
-    let cloned_reference = reference_counted.clone();
-    println!(
-        "Current reference count is {}",
-        Rc::strong_count(&cloned_reference)
-    );
-    core::mem::drop(reference_counted);
-    println!(
-        "reference count is {} now",
-        Rc::strong_count(&cloned_reference)
-    );
+    let mut executor = SimpleExecutor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.run();
 
     #[cfg(test)]
     test_main();
@@ -72,4 +55,13 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("it did not crash!");
 
     blog_os::hlt_loop();
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
 }
